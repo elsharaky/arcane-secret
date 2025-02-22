@@ -1,0 +1,9 @@
+apiVersion: api.arcanesecret.io/v1alpha1
+kind: KeyPair
+metadata:
+  name: sample-keypair
+  namespace: default
+spec:
+  algorithm: RSA
+  size: 4096
+  sshFormat: true

@@ -1,0 +1,54 @@
+name: Release Helm Chart
+
+on:
+  workflow_run:
+    workflows: ["Build & Push Docker Image"]
+    types:
+      - completed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetches all history (required to access tags)
+          fetch-tags: true  # Explicitly fetch tags
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+      
+      - name: Update Helm chart version
+        run: |
+          TAG=$(git tag --sort=-creatordate | head -n 1)
+          
+          # Update Chart.yaml
+          sed -i "s/^version:.*/version: $TAG/" dist/chart/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: $TAG/" dist/chart/Chart.yaml
+
+          # Update values.yaml
+          sed -i "s|tag: .*|tag: $TAG|" dist/chart//values.yaml 
+
+      - name: Package Helm chart
+        run: |
+          helm package ./dist/chart
+          helm repo index . --url https://elsharaky.github.io/arcane-secret/ --merge index.yaml
+      
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Deploy to GitHub Pages
+        run: |
+          cp arcane-secret-*.tgz gh-pages/
+          cp index.yaml gh-pages/
+          cd gh-pages
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add *.tgz index.yaml
+          git commit --allow-empty -m "Update Helm chart release"
+          git push origin gh-pages

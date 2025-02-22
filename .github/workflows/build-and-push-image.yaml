@@ -1,0 +1,30 @@
+name: Build & Push Docker Image
+
+on:
+  workflow_run:
+    workflows: ["Versioning"]
+    types:
+      - completed
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetches all history (required to access tags)
+          fetch-tags: true  # Explicitly fetch tags
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          TAG=$(git tag --sort=-creatordate | head -n 1)
+          IMAGE_NAME=ghcr.io/${{ github.repository }}/k8s-operator
+
+          IMG="${IMAGE_NAME}:${TAG}" make docker-build
+          
+          docker push "${IMAGE_NAME}:${TAG}"
