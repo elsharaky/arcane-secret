@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  arcane-secret:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-02-22T19:42:01.475690089+02:00"
+    description: A Helm chart to distribute the project arcane-secret
+    digest: f228aa1d3e5c593217838b43559224864be866c944bf911f0f8a253d689232c3
+    name: arcane-secret
+    type: application
+    urls:
+    - https://elsharaky.github.io/arcane-secret/arcane-secret-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-02-22T19:42:01.475135582+02:00"
