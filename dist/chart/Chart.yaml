@@ -1,0 +1,6 @@
+apiVersion: v2
+name: arcane-secret
+description: A Helm chart to distribute the project arcane-secret
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
